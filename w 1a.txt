@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include <string.h>
+
+void sender() {
+    int n, i;
+    char frames[10][100];
+
+    printf("Sender Side:\n");
+    printf("Enter the number of frames: ");
+    scanf("%d", &n);
+    getchar(); // clear leftover newline
+
+    for (i = 0; i < n; i++) {
+        printf("Enter data for frame %d: ", i + 1);
+        fgets(frames[i], sizeof(frames[i]), stdin);
+        frames[i][strcspn(frames[i], "\n")] = '\0';  // remove newline
+    }
+
+    printf("\nTransmitted Frames:\n");
+    for (i = 0; i < n; i++) {
+        int len = strlen(frames[i]);
+        printf("%d%s", len + 1, frames[i]);  // count byte + data
+    }
+    printf("\n");
+}
+
+void receiver() {
+    char stream[500];
+
+    printf("\nReceiver Side:\n");
+    printf("Enter the received stream: ");
+    scanf("%s", stream);
+
+    int i = 0;
+    int total_len = strlen(stream);
+
+    printf("\nReceived Frames:\n");
+
+    while (i < total_len) {
+        int count = stream[i] - '0';  // convert char to int
+        printf("Frame: ");
+
+        for (int j = 1; j < count; j++) {
+            printf("%c", stream[i + j]);
+        }
+
+        printf("\n");
+        i += count;
+    }
+}
+
+int main() {
+    sender();
+    receiver();
+    return 0;
+}
