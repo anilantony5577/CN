@@ -1,0 +1,83 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#define MAX_FRAMES 100
+int total_frames;      // Total number of frames to send
+int window_size;       // Window size
+// Function to simulate sending a frame with 90% success rate and 10% loss
+int send_frame(int frame) {
+    // rand() % 10 gives values from 0 to 9
+    // So, 0-8 → success (90%), 9 → failure (10%)
+    return rand() % 10 < 9;
+}
+// Function to simulate receiving an acknowledgment (not used here directly)
+int receive_ack(int frame) {
+    return 1;  // Always successful in this simulation
+}
+// Function to simulate Go-Back-N protocol
+void go_back_n() {
+    int base = 0;           // First frame in the current window
+    int next_frame = 0;     // Next frame to be sent
+    while (base < total_frames) {
+        // Send frames within the current window
+        for (int i = 0; i < window_size && next_frame < total_frames; i++) {
+            printf("Sending Frame %d\n", next_frame);
+
+            // Simulate random frame loss
+            if (!send_frame(next_frame)) {
+                printf("Frame %d lost during transmission.\n", next_frame);
+                break;  // Stop sending if a frame is lost (Go-Back-N behavior)
+            }
+            next_frame++;  // Move to the next frame
+        }
+        // Check for acknowledgments
+        int all_acknowledged = 1;
+        for (int i = base; i < next_frame; i++) {
+            // Simulate acknowledgment loss or frame error
+            if (send_frame(i)) {
+                printf("Acknowledgment received for Frame %d\n", i);
+                base++;  // Move base forward
+            } else {
+                printf("ACK lost or Frame %d failed. Go-Back-N from Frame %d\n", i, i);
+                next_frame = base;      // Reset to base to resend from that point
+                all_acknowledged = 0;   // Not all frames were acknowledged
+                break;
+            }
+        }
+        // If acknowledgment failed, indicate window resend
+        if (!all_acknowledged) {
+            printf("Resending window from Frame %d\n", base);
+        }
+    }
+    printf("All frames sent and acknowledged successfully.\n");
+}
+
+int main() {
+    srand(time(NULL));  // Seed the random number generator with current time
+
+    printf("Enter total number of frames to send: ");
+    scanf("%d", &total_frames);
+
+    // Validate total_frames
+    if (total_frames <= 0 || total_frames > MAX_FRAMES) {
+        printf("Invalid number of frames. Please enter between 1 and %d.\n", MAX_FRAMES);
+        return 1;
+    }
+
+    printf("Enter window size: ");
+    scanf("%d", &window_size);
+
+    // Validate window_size
+    if (window_size <= 0 || window_size > total_frames) {
+        printf("Invalid window size. Please enter between 1 and %d.\n", total_frames);
+        return 1;
+    }
+
+    // Run the Go-Back-N protocol simulation
+    go_back_n();
+
+    return 0;
+}
+
+
+
