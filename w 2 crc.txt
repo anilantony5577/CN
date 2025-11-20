@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <string.h>
+// Function to compute CRC of input data using a given polynomial and CRC bit size
+unsigned short compute_crc(const char *input, unsigned short poly, int crc_bits) {
+    unsigned int crc = 0;  // Initialize CRC register to 0
+    int i, j;
+
+    // Loop through each byte (character) of input
+    for (i = 0; input[i] != '\0'; i++) {
+        // Align byte to the left by shifting to match the highest bit of CRC
+        crc ^= (input[i] << (crc_bits - 8));
+
+        // Process each of the 8 bits in the byte
+        for (j = 0; j < 8; j++) {
+            // If MSB (most significant bit) is 1, perform polynomial division (XOR)
+            if (crc & (1 << (crc_bits - 1)))
+                crc = (crc << 1) ^ poly;  // Shift left and XOR with polynomial
+            else
+                crc <<= 1;  // Just shift left (no XOR needed)
+        }
+    }
+
+    // Mask the result to ensure it fits within the CRC bit size
+    crc &= (1 << crc_bits) - 1;
+    return crc;  // Return the final CRC result
+}
+
+int main() {
+    char data[256];  // Buffer to hold input data
+
+    // Prompt user to enter data
+    printf("Enter input data: ");
+    scanf("%s", data);  // Read input string
+
+    // ---------- CRC-12 ----------
+    unsigned short crc12_poly = 0x180F;  // Generator polynomial for CRC-12
+    unsigned short crc12 = compute_crc(data, crc12_poly, 12);  // Compute CRC-12
+    printf("CRC-12 (0x180F): 0x%03X\n", crc12);  // Display result in 3-digit hex
+
+    // ---------- CRC-16 ----------
+    unsigned short crc16_poly = 0x8005;  // Generator polynomial for CRC-16
+    unsigned short crc16 = compute_crc(data, crc16_poly, 16);  // Compute CRC-16
+    printf("CRC-16 (0x8005): 0x%04X\n", crc16);  // Display result in 4-digit hex
+
+    // ---------- CRC-CCITT ----------
+    unsigned short crc_ccitt_poly = 0x1021;  // Generator polynomial for CRC-CCITT
+    unsigned short crc_ccitt = compute_crc(data, crc_ccitt_poly, 16);  // Compute CRC-CCITT
+    printf("CRC-CCITT (0x1021): 0x%04X\n", crc_ccitt);  // Display result in 4-digit hex
+
+    return 0;  // End of program
+}
