@@ -1,0 +1,56 @@
+#include <stdio.h>
+#define MAX 10
+// Queue variables
+int queue[MAX], front = -1, rear = -1;
+// Function to add element to queue
+void enqueue(int value) {
+    if (rear == MAX - 1) return; // Queue full
+    if (front == -1) front = 0;  // First element
+    queue[++rear] = value;
+}
+// Function to remove element from queue
+int dequeue() {
+    if (front == -1 || front > rear) return -1; // Queue empty
+    return queue[front++];
+}
+// Function to check if queue is empty
+int isEmpty() {
+    return (front == -1 || front > rear);
+}
+// BFS function to create and display broadcast tree
+void bfs_broadcast_tree(int graph[MAX][MAX], int n, int start) {
+    int visited[MAX] = {0};
+    int parent[MAX]; // Stores parent of each node in the tree
+    // Initialize parent array
+    for (int i = 0; i < n; i++) parent[i] = -1;
+    // Start BFS
+    enqueue(start);
+    visited[start] = 1;
+    printf("Broadcast Tree Edges:\n");
+    while (!isEmpty()) {
+        int current = dequeue();
+        // Check all adjacent nodes
+        for (int i = 0; i < n; i++) {
+            if (graph[current][i] && !visited[i]) {
+                visited[i] = 1;
+                parent[i] = current;
+                enqueue(i);
+                printf("%d -> %d\n", current, i);
+            }
+        }
+    }
+}
+// Main function
+int main() {
+    int graph[MAX][MAX] = {0};
+    int nodes = 6;
+    // Define the subnet connections (undirected graph)
+    graph[0][1] = graph[1][0] = 1;
+    graph[0][3] = graph[3][0] = 1;
+    graph[1][2] = graph[2][1] = 1;
+    graph[1][4] = graph[4][1] = 1;
+    graph[2][5] = graph[5][2] = 1;
+    // Generate broadcast tree starting from node 0
+    bfs_broadcast_tree(graph, nodes, 0);
+    return 0;
+}
