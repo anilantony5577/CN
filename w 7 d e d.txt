@@ -1,0 +1,46 @@
+#include <stdio.h>    // For input/output functions
+#include <string.h>   // For string handling functions like strlen, strcspn
+// Function to encrypt text using Caesar cipher
+void encrypt(char *text, int key) {
+    // Loop through each character of the string
+    for (int i = 0; i < strlen(text); i++) {
+        // If character is lowercase
+        if (text[i] >= 'a' && text[i] <= 'z')
+            // Shift within 'a'..'z'
+            text[i] = ((text[i] - 'a' + key) % 26) + 'a';
+        // If character is uppercase
+        else if (text[i] >= 'A' && text[i] <= 'Z')
+            // Shift within 'A'..'Z'
+            text[i] = ((text[i] - 'A' + key) % 26) + 'A';
+    }
+}
+// Function to decrypt text (reverse Caesar cipher)
+void decrypt(char *text, int key) {
+    // Loop through each character of the string
+    for (int i = 0; i < strlen(text); i++) {
+        // If character is lowercase
+        if (text[i] >= 'a' && text[i] <= 'z')
+            // Shift backwards in 'a'..'z'
+            text[i] = ((text[i] - 'a' - key + 26) % 26) + 'a';
+        // If character is uppercase
+        else if (text[i] >= 'A' && text[i] <= 'Z')
+            // Shift backwards in 'A'..'Z'
+            text[i] = ((text[i] - 'A' - key + 26) % 26) + 'A';
+    }
+}
+int main() {
+    char message[100];   // Buffer to store user message
+    int key;             // Variable to store shift amount
+    printf("Enter a message: ");
+    fgets(message, sizeof(message), stdin);   // Read input string safely
+    // Remove newline character if present
+    message[strcspn(message, "\n")] = 0;
+    printf("Enter the encryption key (1-25): ");
+    scanf("%d", &key);   // Read integer key from user
+    encrypt(message, key);   // Encrypt the message
+    printf("Encrypted message: %s\n", message);
+    decrypt(message, key);   // Decrypt back to original
+    printf("Decrypted message: %s\n", message);
+    return 0;   // Successful program termination
+}
+
