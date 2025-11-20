@@ -1,0 +1,56 @@
+#include <stdio.h>
+#define INFINITY 999  // Macro to represent infinity/unreachable nodes
+#define MAX 10        // Maximum number of nodes supported
+// Structure to represent a node's routing table
+struct Node {
+    int distance[MAX];  // Array to store distances to all other nodes
+    int nextHop[MAX];   // Array to store next hop for each destination
+} routingTable[MAX];    // Array of routing tables (one per node)
+int main() {
+    int costMatrix[MAX][MAX];  // 2D array to store network topology costs
+    int numNodes, i, j, k, count = 0;  // Variables for node count and loop counters
+    // Get number of nodes from user
+    printf("Enter the number of nodes: ");
+    scanf("%d", &numNodes);
+    // Get cost matrix input from user
+    printf("Enter the cost matrix (use %d for INFINITY):\n", INFINITY);
+    for (i = 0; i < numNodes; i++) {
+        for (j = 0; j < numNodes; j++) {
+            scanf("%d", &costMatrix[i][j]);
+            costMatrix[i][i] = 0;  // Cost to self is always 0
+            // Initialize routing table with direct link costs
+            routingTable[i].distance[j] = costMatrix[i][j];
+            routingTable[i].nextHop[j] = j;  // Initially next hop is the destination itself
+        }
+    }
+    // Distance Vector Algorithm (Bellman-Ford implementation)
+    do {
+        count = 0;  // Reset change counter for each iteration   
+        // Check all possible paths through all nodes
+        for (i = 0; i < numNodes; i++) {          // For each source node
+            for (j = 0; j < numNodes; j++) {      // For each destination node
+                for (k = 0; k < numNodes; k++) {  // For each possible intermediate node
+                    // If path through k is better than current path
+                    if (routingTable[i].distance[j] > costMatrix[i][k] + routingTable[k].distance[j]) {
+                        // Update the distance
+                        routingTable[i].distance[j] = costMatrix[i][k] + routingTable[k].distance[j];
+                        // Update the next hop
+                        routingTable[i].nextHop[j] = k;
+                        count++;  // Increment change counter
+                    }
+                }
+            }
+        }
+    } while (count != 0);  // Continue until no more updates occur
+    // Display final routing tables for all nodes
+    for (i = 0; i < numNodes; i++) {
+        printf("\nRouting table for Node %d:\n", i);
+        printf("Destination\tNext Hop\tDistance\n");      
+        // Print each destination's routing information
+        for (j = 0; j < numNodes; j++) {
+            printf("     %d\t\t   %d\t\t   %d\n", 
+                  j, routingTable[i].nextHop[j], routingTable[i].distance[j]);
+        }
+    }
+    return 0;  // End program
+}
