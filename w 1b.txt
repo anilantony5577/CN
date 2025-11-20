@@ -1,0 +1,33 @@
+#include <stdio.h> 
+#include <string.h> 
+#define MAX 100 
+int main() { 
+    char data[MAX], stuffedData[MAX * 2]; 
+    char flag[] = "FLAG"; 
+    char esc[] = "ESC"; 
+    int i, j = 0; 
+    printf("Enter the data to be transmitted: "); 
+    scanf("%s", data); 
+    // Begin stuffing 
+    strcpy(stuffedData, flag);  // Start flag 
+    j = strlen(flag);           // Set position after FLAG 
+    for (i = 0; i < strlen(data); i++) { 
+        // If data contains FLAG or ESC, stuff ESC 
+        if (data[i] == 'F' && strncmp(&data[i], "FLAG", 4) == 0) { 
+            strcpy(&stuffedData[j], esc); j += strlen(esc); 
+            strncpy(&stuffedData[j], "FLAG", 4); j += 4; 
+            i += 3;  // Skip next 3 characters since "FLAG" is 4 characters 
+        } else if (data[i] == 'E' && strncmp(&data[i], "ESC", 3) == 0) { 
+            strcpy(&stuffedData[j], esc); j += strlen(esc); 
+            strncpy(&stuffedData[j], "ESC", 3); j += 3; 
+            i += 2;  // Skip next 2 characters 
+        } else { 
+            stuffedData[j++] = data[i]; 
+        } 
+    } 
+    strcpy(&stuffedData[j], flag);  // End flag 
+    j += strlen(flag); 
+    stuffedData[j] = '\0'; 
+    printf("\nStuffed Data: %s\n", stuffedData); 
+return 0; 
+} 
